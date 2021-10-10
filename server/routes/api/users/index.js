@@ -1,28 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { User } = require("../../../models/user");
+const userController = require("./user");
 
-// route: POST/api/user/register
-// register new user
+router.post("/register", userController.register);
 
-router.post("/register", async (req, res) => {
-  const { email, password, username, usertype } = req.body;
+router.post("/login", userController.login);
 
-  const newUser = new User({
-    email,
-    password,
-    username,
-    usertype,
-  });
+router.get("/", userController.getAllUsers);
 
-  const user = await User.findOne({ email: email });
-  if (user) {
-    return res.status(400).json({ msg: "Mavjud bo'lgan foydalanuvchi" });
-  }
+router.delete("/:id", userController.deleteUser);
 
-  newUser
-    .save()
-    .then((user) => res.status(200).json(user))
-    .catch((err) => res.status(400).json(err));
-});
 module.exports = router;
