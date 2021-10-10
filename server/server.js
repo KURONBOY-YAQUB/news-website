@@ -1,6 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 
+// Connect to database
+mongoose
+  .connect("mongodb://localhost/news-website", { useNewUrlParser: true })
+  .then(() => console.log("Connected to database"))
+  .catch((err) => console.log(err));
+
 // Configure express
 const app = express();
 app.use(express.json());
