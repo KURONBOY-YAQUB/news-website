@@ -23,11 +23,11 @@ const PostSchema = new mongoose.Schema({
   },
   images: {
     type: String,
-    required: true,
+    // required: true,
   },
   slug: {
     type: String,
-    required: true,
+    // required: true,
   },
   comments: {
     type: mongoose.Schema.Types.ObjectId,
