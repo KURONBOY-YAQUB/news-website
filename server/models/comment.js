@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
+const { PostSchema } = require("../models/post");
+const { UserSchema } = require("../models/user");
 
 const CommentSchema = new mongoose.Schema({
-  user: { type: String },
   commentBody: {
     type: String,
     required: true,
@@ -9,6 +10,16 @@ const CommentSchema = new mongoose.Schema({
   commentDate: {
     type: Date,
     default: Date.now,
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    // required: true,
+  },
+  postId: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Post",
+    required: true,
   },
 });
 
