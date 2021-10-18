@@ -1,4 +1,6 @@
 const { Post } = require("../../../models/post");
+const { Comment } = require("../../../models/comment");
+const { User } = require("../../../models/user");
 const express = require("express");
 const multer = require("multer");
 const router = express.Router();
@@ -47,7 +49,7 @@ router.post("/upload_images", (req, res) => {
 // access PUBLIC
 
 router.post("/posts", (req, res) => {
-  const { title, author, description, category, images } = req.body;
+  const { title, author, description, category, images, tags } = req.body;
 
   const newPost = new Post({
     title,
@@ -55,6 +57,7 @@ router.post("/posts", (req, res) => {
     description,
     category,
     images,
+    tags,
   });
 
   newPost
@@ -86,6 +89,33 @@ router.delete("/posts/:id", (req, res) => {
 
   Post.findByIdAndDelete(id)
     .then((post) => res.status(200).json(post))
+    .catch((err) => res.status(400).json(err));
+});
+
+// route api/posts/comment
+// GET ALL COMMENT
+router.get("/posts/comment", async (req, res) => {
+  const comments = await Comment.find()
+    .populate("postId")
+    .then((comment) => res.status(200).json(comment))
+    .catch((err) => res.status(400).json(err));
+
+  console.log(comments);
+});
+
+// route api/posts/:id/comment
+// INSERT COMMENT
+
+router.post("/posts/:id/comment", async (req, res) => {
+  const id = req.params.id;
+  const comment = new Comment({
+    commentBody: req.body.commentBody,
+    postId: id,
+  });
+
+  comment
+    .save()
+    .then((comment) => res.status(200).json(comment))
     .catch((err) => res.status(400).json(err));
 });
 
