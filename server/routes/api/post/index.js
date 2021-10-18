@@ -44,12 +44,27 @@ router.post("/upload_images", (req, res) => {
   });
 });
 
+// handle slug of news url
+const slugWithDate = (text) => {
+  let myText = text
+    .toString()
+    .toLowerCase()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+    .replace(/\-\-+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start of text
+    .replace(/-+$/, ""); // Trim - from end of text
+  return myText;
+};
+
 // route api/posts
 // CREATE A NEW POST
 // access PUBLIC
 
 router.post("/posts", (req, res) => {
   const { title, author, description, category, images, tags } = req.body;
+  const x = Math.floor(Math.random() * 100000 + 1);
+  const slug = slugWithDate(req.body.title + "-" + x);
 
   const newPost = new Post({
     title,
@@ -58,6 +73,7 @@ router.post("/posts", (req, res) => {
     category,
     images,
     tags,
+    slug,
   });
 
   newPost
