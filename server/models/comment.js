@@ -16,6 +16,9 @@ const CommentSchema = new mongoose.Schema({
     ref: "User",
     // required: true,
   },
+  //Tipini ko'rsatibsan, post jadvali bilan bog'lanish qani?
+  //Hamma modellaringda shu xatolik tyog'rla!
+  //Qolgan polyalarga ham REF qo'sh va aniqlashtirib ishla
   postId: {
     type: mongoose.Schema.ObjectId,
     ref: "Post",
