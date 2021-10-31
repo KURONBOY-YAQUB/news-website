@@ -90,7 +90,18 @@ router.post("/posts", (req, res) => {
 // access PUBLIC
 
 router.get("/posts", (req, res) => {
-  Post.find()
+  Post.aggregate(
+    { $lookup: { from: 'comments', localField: '_id', foreignField: 'post_id', as: 'comments' } },
+    {
+                $project: {
+                    _id: 1,
+                    post_title: "$title",
+                    description: 1,
+                    comments: 1
+                }
+            }
+  )
+  ///Post.find()
     .sort({ createOn: -1 })
     .then((post) => res.status(200).json(post))
     .catch((err) => res.status(400).json(err));
