@@ -6,19 +6,16 @@ const PostSchema = new mongoose.Schema({
     required: true,
   },
   author: {
-    type: String,
+    type: Schema.Types.ObjectId, ref: "User",
     required: true,
   },
   description: {
     type: String,
     required: true,
   },
-  createOn: {
-    type: Date,
-    default: Date.now,
-  },
   category: {
-    type: String,
+    
+    type: Schema.Types.ObjectId, ref: "Category",
     required: true,
   },
   images: {
@@ -28,11 +25,16 @@ const PostSchema = new mongoose.Schema({
   slug: {
     type: String,
     required: true,
+    unique: true,
   },
   tags: {
     type: [String],
   },
-});
+},
+                                       {
+        timestamps: true,
+    }
+                      );
 
 const Post = mongoose.model("Post", PostSchema);
 
