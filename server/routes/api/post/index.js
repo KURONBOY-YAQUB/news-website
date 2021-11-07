@@ -1,5 +1,6 @@
 const { Post } = require("../../../models/post");
-const { Comment } = require("../../../models/comment");
+const { Comments } = require("../../../models/comment");
+const { Category } = require("../../../models/category");
 const { User } = require("../../../models/user");
 const express = require("express");
 const multer = require("multer");
@@ -85,14 +86,33 @@ router.post("/posts", (req, res) => {
     .catch((err) => res.status(400).json(err));
 });
 
-// route api/posts
-// GET ALL POSTS
-// access PUBLIC
+// route api/posts/:id/comment
+// INSERT CATEGORY
+router.post("/posts/category", (req, res) => {
+  const category = new Category({
+    name: req.body.name,
+  });
 
-router.get("/posts", (req, res) => {
-  Post.find()
-    .sort({ createOn: -1 })
-    .then((post) => res.status(200).json(post))
+  category
+    .save()
+    .then((category) => res.status(200).json(category))
+    .catch((err) => res.status(400).json(err));
+});
+
+// route api/posts/:id/comment
+// INSERT COMMENT
+
+router.post("/posts/add/comment", async (req, res) => {
+  const id = req.body.postId;
+  const comment = new Comments({
+    commentBody: req.body.commentBody,
+    postId: id,
+    userId: req.body.userId,
+  });
+
+  comment
+    .save()
+    .then((comment) => res.status(200).json(comment))
     .catch((err) => res.status(400).json(err));
 });
 
@@ -108,8 +128,56 @@ router.delete("/posts/:id", (req, res) => {
     .catch((err) => res.status(400).json(err));
 });
 
+// route api/posts
+// GET ALL POSTS
+// access PUBLIC
+
+router.get("/posts", (req, res) => {
+  Post.aggregate([
+    {
+      $lookup: {
+        from: "comments",
+        let: { post_id: "$_id" },
+        pipeline: [
+          { $match: { $expr: { $eq: ["$postId", "$$post_id"] } } },
+          {
+            $lookup: {
+              from: "users",
+              localField: "userId",
+              foreignField: "_id",
+              as: "user",
+            },
+          },
+          { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
+          {
+            $project: {
+              _id: 1,
+              user_name: "$user.username",
+              comment_body: "$commentBody",
+              comment_at: "$createdAt",
+            },
+          },
+        ],
+        as: "comments",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        post_title: "$title",
+        description: 1,
+        comments: 1,
+      },
+    },
+  ])
+    .sort({ CreatedAt: -1 })
+    .then((post) => res.status(200).json(post))
+    .catch((err) => res.status(400).json(err));
+});
+
 // route api/posts/comment
 // GET ALL COMMENT
+
 router.get("/posts/comment", async (req, res) => {
   const comments = await Comment.find()
     .populate("postId")
@@ -119,19 +187,13 @@ router.get("/posts/comment", async (req, res) => {
   console.log(comments);
 });
 
-// route api/posts/:id/comment
-// INSERT COMMENT
+// route api/posts/comment
+// GET POST WITH SLUG
 
-router.post("/posts/:id/comment", async (req, res) => {
-  const id = req.params.id;
-  const comment = new Comment({
-    commentBody: req.body.commentBody,
-    postId: id,
-  });
-
-  comment
-    .save()
-    .then((comment) => res.status(200).json(comment))
+router.get("/posts/slug", (req, res) => {
+  const { slug } = req.query;
+  Post.findOne({ slug })
+    .then((post) => res.status(200).json(post))
     .catch((err) => res.status(400).json(err));
 });
 
