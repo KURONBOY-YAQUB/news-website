@@ -93,6 +93,7 @@ router.post("/posts/category", (req, res) => {
     name: req.body.name,
   });
 
+<<<<<<< HEAD
   category
     .save()
     .then((category) => res.status(200).json(category))
@@ -113,6 +114,23 @@ router.post("/posts/add/comment", async (req, res) => {
   comment
     .save()
     .then((comment) => res.status(200).json(comment))
+=======
+router.get("/posts", (req, res) => {
+  Post.aggregate(
+    { $lookup: { from: 'comments', localField: '_id', foreignField: 'post_id', as: 'comments' } },
+    {
+                $project: {
+                    _id: 1,
+                    post_title: "$title",
+                    description: 1,
+                    comments: 1
+                }
+            }
+  )
+  ///Post.find()
+    .sort({ createOn: -1 })
+    .then((post) => res.status(200).json(post))
+>>>>>>> 83e603d7e7655629398d6824dd039eae70c1d9de
     .catch((err) => res.status(400).json(err));
 });
 
